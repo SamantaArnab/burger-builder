@@ -28,6 +28,9 @@ const input = (props) => {
         <div className={classes.Input}>
             <label className={classes.Label}>{props.label}</label>
             {inputElement}
+            {!props.valid &&
+                <div>It has error</div>
+            }
         </div>
 )};
 
