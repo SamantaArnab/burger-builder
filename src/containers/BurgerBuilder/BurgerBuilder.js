@@ -6,7 +6,8 @@ import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import axios from '../../axios-orders';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
-import { ADD_INGREDIENTS, REMOVE_INGREDIENTS } from '../../store/actions';
+// import { ADD_INGREDIENTS, REMOVE_INGREDIENTS } from '../../store/actions/actionTypes';
+import * as BurgerBuilderActions from '../../store/actions/index'
 import { connect } from 'react-redux';
 
 
@@ -14,16 +15,9 @@ class BurgerBuilder extends Component {
     state = {
         purchaseable: false,
         purchasing: false,
-        error: false
     };
     componentDidMount() {
-        axios.get('https://burger-builder-2b3ec.firebaseio.com/ingredients.json')
-            .then(response => {
-                this.setState({ ingredients: response.data })
-            })
-            .catch(error => {
-                this.setState({ error: true });
-            })
+        this.props.onInitIngredients()
     }
 
     // addIngredientHandler = (type) => {
@@ -84,13 +78,13 @@ class BurgerBuilder extends Component {
     };
     render() {
 
-        const disabledInfo = { ... this.props.ing };
+        const disabledInfo = { ...this.props.ing };
         for (let key in disabledInfo) {
             disabledInfo[key] = disabledInfo[key] <= 0
         }
         return (
             <Aux>
-                {!this.state.error && (
+                {!this.props.error && (
                     <div>
                         {this.props.ing && (
                             <div>
@@ -122,14 +116,16 @@ class BurgerBuilder extends Component {
 
 const mapStateToProps = state => {
     return {
-        ing: state.ingredients,
-        totalPrice: state.totalPrice
+        ing: state.burgerBuilder.ingredients,
+        totalPrice: state.burgerBuilder.totalPrice,
+        error: state.burgerBuilder.error
     }
 }
 const mapDispatchToProps = dispatch => {
     return {
-        onIngredientAdded: (ingName) => dispatch({ type: ADD_INGREDIENTS, ingredientName: ingName}),
-        onIngredientRemoved: (ingName) => dispatch({ type: REMOVE_INGREDIENTS, ingredientName: ingName})
+        onIngredientAdded: (ingName) => dispatch(BurgerBuilderActions.addIngredient(ingName)),
+        onIngredientRemoved: (ingName) => dispatch(BurgerBuilderActions.removeIngredient(ingName)),
+        onInitIngredients: () => dispatch(BurgerBuilderActions.initIngredients())
     }
 }
 
